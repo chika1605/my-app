@@ -1,5 +1,6 @@
 package kg.rubicon.my_app.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -17,12 +18,13 @@ import java.nio.file.Paths;
 @RequestMapping("/api/v1/files")
 public class FileController {
 
-    private final Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads", "persons");
+    @Value("${person.upload-dir}")
+    private String uploadDir;
 
     @GetMapping("/persons/{filename:.+}")
     public ResponseEntity<Resource> getPersonPhoto(@PathVariable String filename) {
         try {
-            Path file = Paths.get(uploadDir, "persons", filename);
+            Path file = getUploadPath();
             Resource resource = new UrlResource(file.toUri());
 
             if (!resource.exists() || !resource.isReadable()) {

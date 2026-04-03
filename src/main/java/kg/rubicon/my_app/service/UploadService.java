@@ -1,10 +1,9 @@
 package kg.rubicon.my_app.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import kg.rubicon.my_app.ml.MlService;
+import kg.rubicon.my_app.ml.dto.GetInfoResponse;
 import kg.rubicon.my_app.model.Document;
 import kg.rubicon.my_app.repository.DocumentRepository;
-import kg.rubicon.my_app.repository.PersonRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,22 +21,15 @@ import java.time.LocalDateTime;
 public class UploadService {
 
     private final DocumentRepository documentRepository;
-    private final PersonRepository personRepository;
     private final MlService mlServiceClient;
 
     @Value("${upload.dir:uploads}")
     private String uploadDir;
 
     @Transactional
-    public Document upload(MultipartFile file, Long personId) throws IOException {
+    public UploadResult upload(MultipartFile file) throws IOException {
 
-        var person = personRepository.findById(personId)
-                .orElseThrow(() -> new EntityNotFoundException("Person not found: " + personId));
-
-        // оригинальное имя сохраняем
         String originalName = file.getOriginalFilename();
-
-        // на диске храним как UUID + расширение
         String ext = getExtension(originalName);
         String fileName = UUID.randomUUID() + (ext.isEmpty() ? "" : "." + ext);
 
@@ -49,29 +41,24 @@ public class UploadService {
         String fullText = new String(file.getBytes(), StandardCharsets.UTF_8);
 
         Document document = Document.builder()
-                .originalName(originalName)   // delo_baytemirova.txt
-                .fileName(fileName)           // uuid.txt
+                .originalName(originalName)
+                .fileName(fileName)
                 .filePath(filePath.toString())
                 .fullText(fullText)
                 .uploadedAt(LocalDateTime.now())
-                .person(person)
+                .person(null)
                 .build();
         documentRepository.save(document);
 
-//        mlServiceClient.saveDoc(new MlService.SaveDocRequest(
-//                personId,
-//                document.getId(),
-//                originalName,   // ML-сервису отдаём оригинальное имя
-//                fullText,
-//                "ru"
-//        ));
+        GetInfoResponse mlResponse = mlServiceClient.getInfo(fullText);
 
-        return document;
+        return new UploadResult(document, mlResponse);
     }
 
-    // хелпер для расширения
     private String getExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) return "";
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
+
+    public record UploadResult(Document document, GetInfoResponse mlResponse) {}
 }

@@ -21,8 +21,19 @@ public class PersonDto {
     private LocalDate arrestDate;
     private LocalDate sentenceDate;
     private LocalDate rehabilitationDate;
+    private String status;
 
     private List<TranslationDto> translations;
+    private String imageFileName;
+    private List<ResourceInfo> resources;
+
+    @Getter
+    @Setter
+    public static class ResourceInfo {
+
+        private String fileName;
+
+    }
 
     @Getter
     @Setter
@@ -32,7 +43,6 @@ public class PersonDto {
 
         private String fullName;
 
-        private String normalizedName;
         private String birthPlace;
         private String deathPlace;
         private String region;

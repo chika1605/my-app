@@ -1,56 +1,61 @@
 package kg.rubicon.my_app.mapper;
 
-import kg.rubicon.my_app.dto.PersonCreationRequest;
+import kg.rubicon.my_app.dto.PersonDto;
 import kg.rubicon.my_app.model.Person;
-import kg.rubicon.my_app.model.PersonStatus;
-import kg.rubicon.my_app.model.PersonTranslation;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class PersonMapper {
 
-    public Person toEntity(PersonCreationRequest request) {
-        if (request == null) {
+    public PersonDto toDto(Person person, String imageFileName, List<String> resources) {
+        if (person == null) {
             return null;
         }
 
-        Person person = Person.builder()
-                .birthYear(request.getBirthYear())
-                .deathYear(request.getDeathYear())
-                .birthDate(request.getBirthDate())
-                .deathDate(request.getDeathDate())
-                .arrestDate(request.getArrestDate())
-                .sentenceDate(request.getSentenceDate())
-                .rehabilitationDate(request.getRehabilitationDate())
-                .status(PersonStatus.PENDING.getId())
-                .build();
+        PersonDto dto = new PersonDto();
+        dto.setBirthYear(person.getBirthYear());
+        dto.setDeathYear(person.getDeathYear());
+        dto.setBirthDate(person.getBirthDate());
+        dto.setDeathDate(person.getDeathDate());
+        dto.setArrestDate(person.getArrestDate());
+        dto.setSentenceDate(person.getSentenceDate());
+        dto.setRehabilitationDate(person.getRehabilitationDate());
 
-        List<PersonTranslation> translations = null;
-        if (request.getTranslations() != null && !request.getTranslations().isEmpty()) {
-            translations = request.getTranslations().stream()
-                    .map(t ->
-                            PersonTranslation.builder()
-                            .language(t.getLanguage())
-                            .fullName(t.getFullName())
-                            .normalizedName(t.getNormalizedName())
-                            .birthPlace(t.getBirthPlace())
-                            .deathPlace(t.getDeathPlace())
-                            .region(t.getRegion())
-                            .district(t.getDistrict())
-                            .occupation(t.getOccupation())
-                            .charge(t.getCharge())
-                            .sentence(t.getSentence())
-                            .biography(t.getBiography())
-                            .person(person)
-                            .build())
-                    .collect(Collectors.toList());
-            person.setTranslations(translations);
+        if (person.getTranslations() != null && !person.getTranslations().isEmpty()) {
+            List<PersonDto.TranslationDto> translationDtos = person.getTranslations().stream()
+                    .map(t -> {
+                        PersonDto.TranslationDto translationDto = new PersonDto.TranslationDto();
+                        translationDto.setLanguage(t.getLanguage());
+                        translationDto.setFullName(t.getFullName());
+                        translationDto.setBirthPlace(t.getBirthPlace());
+                        translationDto.setDeathPlace(t.getDeathPlace());
+                        translationDto.setRegion(t.getRegion());
+                        translationDto.setDistrict(t.getDistrict());
+                        translationDto.setOccupation(t.getOccupation());
+                        translationDto.setCharge(t.getCharge());
+                        translationDto.setSentence(t.getSentence());
+                        translationDto.setBiography(t.getBiography());
+                        return translationDto;
+                    })
+                    .toList();
+            dto.setTranslations(translationDtos);
         }
 
-        return person;
-    }
+        dto.setImageFileName(imageFileName);
 
+        if (resources != null && !resources.isEmpty()) {
+            List<PersonDto.ResourceInfo> resourceInfos = resources.stream()
+                    .map(r -> {
+                        PersonDto.ResourceInfo resourceInfo = new PersonDto.ResourceInfo();
+                        resourceInfo.setFileName(r);
+                        return resourceInfo;
+                    })
+                    .toList();
+            dto.setResources(resourceInfos);
+        }
+
+        return dto;
+    }
 }

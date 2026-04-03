@@ -5,6 +5,7 @@ package kg.rubicon.my_app.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "documents")
@@ -27,4 +28,8 @@ public class Document {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
     private Person person;
+
+    @ManyToMany(mappedBy = "documentsManyToMany")
+    private List<Person> personsManyToMany;
+
 }

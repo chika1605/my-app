@@ -30,6 +30,10 @@ public class Person {
     private LocalDate birthDate;
     private LocalDate deathDate;
 
+    private Integer repressionYear;
+
+    private String photoUrl;
+
     private LocalDate arrestDate;
     private LocalDate sentenceDate;
     private LocalDate rehabilitationDate;
@@ -46,6 +50,14 @@ public class Person {
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<PersonTranslation> translations;
+
+    @ManyToMany
+    @JoinTable(
+            name = "person_documents",
+            joinColumns = @JoinColumn(name = "person_id"),
+            inverseJoinColumns = @JoinColumn(name = "document_id")
+    )
+    private List<Document> documentsManyToMany;
 
     public PersonStatus getStatusAsEnum() {
         return PersonStatus.getFromId(this.status);
