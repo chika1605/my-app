@@ -22,8 +22,8 @@ public class UploadController {
             return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
 
         String name = file.getOriginalFilename();
-        if (name == null || (!name.endsWith(".txt") && !name.endsWith(".md")))
-            return ResponseEntity.badRequest().body(Map.of("error", "Only .txt and .md allowed"));
+        if (name == null || (!name.endsWith(".txt") && !name.endsWith(".md") && !name.endsWith(".pdf")))
+            return ResponseEntity.badRequest().body(Map.of("error", "Only .txt, .md and .pdf allowed"));
 
         try {
             UploadService.UploadResult result = uploadService.upload(file);

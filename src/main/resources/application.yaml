@@ -3,7 +3,7 @@ upload:
 
 ml:
   api:
-    url: https://b3ec-212-42-96-202.ngrok-free.app
+    url: https://251e-212-42-96-202.ngrok-free.app
     routers:
       save-doc: /ai/save_doc
       get-info: /ai/get_info
