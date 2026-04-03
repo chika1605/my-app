@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "persons")
@@ -24,7 +25,6 @@ public class Person {
     private LocalDate birthDate;
     private LocalDate deathDate;
 
-    private Integer repressionYear;
     private LocalDate arrestDate;
     private LocalDate sentenceDate;
     private LocalDate rehabilitationDate;
