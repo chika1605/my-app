@@ -2,6 +2,7 @@ package kg.rubicon.my_app.repository;
 
 import kg.rubicon.my_app.model.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -57,4 +58,9 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
             WHERE p.id = :id
             """)
     Optional<Person> findByIdWithTranslations(@Param("id") Long id);
+
+
+    @Modifying
+    @Query(value = "UPDATE persons SET status = :status WHERE id = :id", nativeQuery = true)
+    void personUpdateStatusById(@Param("id") Long id, @Param("status") short status);
 }

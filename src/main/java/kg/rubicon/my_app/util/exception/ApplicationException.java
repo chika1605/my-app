@@ -14,4 +14,11 @@ public abstract class ApplicationException extends RuntimeException {
         this.errorCode = errorCode;
         this.httpStatus = httpStatus;
     }
+
+    protected ApplicationException(String message, String errorCode, HttpStatus httpStatus, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
+        this.httpStatus = httpStatus;
+    }
+
 }

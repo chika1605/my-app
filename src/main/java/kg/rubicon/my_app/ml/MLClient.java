@@ -30,15 +30,58 @@ public class MLClient {
         log.debug("ML POST {} | body: {}", url, requestBody);
 
         try {
-            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.POST, entity, responseType);
+            ResponseEntity<T> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    responseType
+            );
             log.debug("ML response status: {}", response.getStatusCode());
             return response.getBody();
         } catch (HttpClientErrorException e) {
-            log.error("ML client error: {}", e.getResponseBodyAsString());
-            throw new MLIntegrationException("ML client error: " + e.getResponseBodyAsString(), "ML_CLIENT_ERROR", HttpStatus.BAD_REQUEST);
+            throw handleClientError(e);
         } catch (HttpServerErrorException e) {
-            log.error("ML server error: {}", e.getResponseBodyAsString());
-            throw new MLIntegrationException("ML server error: " + e.getResponseBodyAsString(), "ML_SERVER_ERROR", HttpStatus.BAD_GATEWAY);
+            throw handleServerError(e);
         }
+    }
+
+    public <T> T get(String path, Class<T> responseType, Object... uriVars) {
+        String url = properties.getUrl() + path;
+        HttpEntity<Void> entity = new HttpEntity<>(buildHeaders());
+
+        log.debug("ML GET {}", url);
+
+        try {
+            ResponseEntity<T> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    responseType,
+                    uriVars
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            throw handleClientError(e);
+        } catch (HttpServerErrorException e) {
+            throw handleServerError(e);
+        }
+    }
+
+    private MLIntegrationException handleClientError(HttpClientErrorException e) {
+        log.error("ML client error: {}", e.getResponseBodyAsString());
+        return new MLIntegrationException(
+                "ML client error: " + e.getResponseBodyAsString(),
+                "ML_CLIENT_ERROR",
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    private MLIntegrationException handleServerError(HttpServerErrorException e) {
+        log.error("ML server error: {}", e.getResponseBodyAsString());
+        return new MLIntegrationException(
+                "ML server error: " + e.getResponseBodyAsString(),
+                "ML_SERVER_ERROR",
+                HttpStatus.BAD_GATEWAY
+        );
     }
 }

@@ -3,8 +3,8 @@ package kg.rubicon.my_app.service;
 import kg.rubicon.my_app.ml.MlService;
 import kg.rubicon.my_app.ml.dto.GetInfoResponse;
 import kg.rubicon.my_app.model.Document;
-import kg.rubicon.my_app.model.DocumentStatus;
 import kg.rubicon.my_app.repository.DocumentRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,14 +15,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UploadService {
 
     private final DocumentRepository documentRepository;
-    private final MlService mlService;
+    private final MlService mlServiceClient;
 
     @Value("${upload.dir:uploads}")
     private String uploadDir;
@@ -51,7 +50,7 @@ public class UploadService {
                 .build();
         documentRepository.save(document);
 
-        GetInfoResponse mlResponse = mlService.getInfo(fullText);
+        GetInfoResponse mlResponse = mlServiceClient.getInfo(fullText);
 
         return new UploadResult(document, mlResponse);
     }
