@@ -2,8 +2,10 @@ package kg.rubicon.my_app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class MyAppApplication  {
 
     public static void main(String[] args) {
