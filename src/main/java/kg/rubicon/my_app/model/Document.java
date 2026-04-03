@@ -15,8 +15,8 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String originalName;   // delo_baytemirova.txt
-    private String fileName;       // 3f2a1b...-uuid.txt  (на диске)
+    private String originalName;
+    private String fileName;
     private String filePath;
 
     @Column(columnDefinition = "TEXT")

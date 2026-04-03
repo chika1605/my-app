@@ -1,7 +1,7 @@
 package kg.rubicon.my_app.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import kg.rubicon.my_app.service.MlServiceClient;
+import kg.rubicon.my_app.ml.MlService;
 import kg.rubicon.my_app.model.Document;
 import kg.rubicon.my_app.repository.DocumentRepository;
 import kg.rubicon.my_app.repository.PersonRepository;
@@ -23,7 +23,7 @@ public class UploadService {
 
     private final DocumentRepository documentRepository;
     private final PersonRepository personRepository;
-    private final MlServiceClient mlServiceClient;
+    private final MlService mlServiceClient;
 
     @Value("${upload.dir:uploads}")
     private String uploadDir;
@@ -58,13 +58,13 @@ public class UploadService {
                 .build();
         documentRepository.save(document);
 
-        mlServiceClient.saveDoc(new MlServiceClient.SaveDocRequest(
-                personId,
-                document.getId(),
-                originalName,   // ML-сервису отдаём оригинальное имя
-                fullText,
-                "ru"
-        ));
+//        mlServiceClient.saveDoc(new MlService.SaveDocRequest(
+//                personId,
+//                document.getId(),
+//                originalName,   // ML-сервису отдаём оригинальное имя
+//                fullText,
+//                "ru"
+//        ));
 
         return document;
     }
