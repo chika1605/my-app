@@ -1,3 +1,31 @@
+upload:
+  dir: uploads
+
+person:
+  upload-dir: uploads/images
+
+ml:
+  api:
+    url: https://251e-212-42-96-202.ngrok-free.app
+    routers:
+      save-doc: /ai/save_doc
+      get-info: /ai/get_info
+
 spring:
-  application:
-    name: my_app
+  datasource:
+    url: jdbc:postgresql://localhost:5433/my_app
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
