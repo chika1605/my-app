@@ -33,7 +33,7 @@ public class UploadService {
         String ext = getExtension(originalName);
         String fileName = UUID.randomUUID() + (ext.isEmpty() ? "" : "." + ext);
 
-        Path dir = Paths.get(uploadDir);
+        Path dir = Paths.get(uploadDir, "files");
         Files.createDirectories(dir);
         Path filePath = dir.resolve(fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);

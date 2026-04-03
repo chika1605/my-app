@@ -24,7 +24,7 @@ public class FileController {
     @GetMapping("/persons/{filename:.+}")
     public ResponseEntity<Resource> getPersonPhoto(@PathVariable String filename) {
         try {
-            Path file = getUploadPath();
+            Path file = getUploadPath().resolve(filename);
             Resource resource = new UrlResource(file.toUri());
 
             if (!resource.exists() || !resource.isReadable()) {

@@ -2,7 +2,10 @@ package kg.rubicon.my_app.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import kg.rubicon.my_app.model.*;
+import kg.rubicon.my_app.model.Document;
+import kg.rubicon.my_app.model.Language;
+import kg.rubicon.my_app.model.Person;
+import kg.rubicon.my_app.model.PersonTranslation;
 import kg.rubicon.my_app.model.dto.ConfirmResponse;
 import kg.rubicon.my_app.model.dto.PersonDataDto;
 import kg.rubicon.my_app.repository.DocumentRepository;
@@ -57,12 +60,15 @@ public class ConfirmService {
                 .build();
 
         if (photo != null && !photo.isEmpty()) {
-            String ext = getExtension(photo.getOriginalFilename());
-            String fileName = UUID.randomUUID() + (ext.isEmpty() ? "" : "." + ext);
-            Path dir = Paths.get(uploadDir);
+            String photoName = photo.getOriginalFilename();
+            if (photoName == null || (!photoName.endsWith(".jpg") && !photoName.endsWith(".jpeg") && !photoName.endsWith(".png")))
+                throw new IllegalArgumentException("Only .jpg, .jpeg and .png allowed for photo");
+            String ext = getExtension(photoName);
+            String fileName = UUID.randomUUID() + "." + ext;
+            Path dir = Paths.get(uploadDir, "images");
             Files.createDirectories(dir);
             Files.copy(photo.getInputStream(), dir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-            person.setPhotoUrl(serverUrl + "/files/" + fileName);
+            person.setPhotoUrl(serverUrl + "/files/images/" + fileName);
         }
 
         personRepository.save(person);
@@ -99,7 +105,7 @@ public class ConfirmService {
                 person.getId(),
                 document.getId(),
                 person.getPhotoUrl(),
-                PersonStatus.PENDING.name()
+                person.getStatusAsEnum().name()
         );
     }
 

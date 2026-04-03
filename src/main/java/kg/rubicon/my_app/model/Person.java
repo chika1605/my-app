@@ -38,6 +38,7 @@ public class Person {
     private LocalDate sentenceDate;
     private LocalDate rehabilitationDate;
 
+    @Builder.Default
     @Column(nullable = false)
     private short status = PersonStatus.PENDING.getId();
 
