@@ -6,10 +6,16 @@ person:
 
 ml:
   api:
-    url: https://251e-212-42-96-202.ngrok-free.app
+    url: https://0b25-178-217-174-2.ngrok-free.app
     routers:
       save-doc: /ai/save_doc
       get-info: /ai/get_info
+
+app:
+  jwt:
+    secret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+    access-token-expiration: 900000
+    refresh-token-expiration: 604800000
 
 spring:
   datasource:
