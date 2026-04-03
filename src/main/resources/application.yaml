@@ -1,6 +1,9 @@
 upload:
   dir: uploads
 
+person:
+  upload-dir: uploads/images
+
 ml:
   api:
     url: https://251e-212-42-96-202.ngrok-free.app
