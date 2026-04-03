@@ -2,8 +2,11 @@ upload:
   dir: uploads
 
 ml:
-  service:
-    url: http://localhost:8000   # поменяй на реальный URL ML-сервиса
+  api:
+    url: http://localhost:8000
+    routers:
+      save-doc: /ai/save_doc
+      get-info: /ai/get_info
 
 spring:
   datasource:
