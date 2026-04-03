@@ -17,5 +17,7 @@ public class MLProperties {
     public static class Routers {
         private String saveDoc;
         private String getInfo;
+        private String chat;
+        private String asr;
     }
 }

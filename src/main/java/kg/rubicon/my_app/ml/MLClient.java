@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -74,6 +75,31 @@ public class MLClient {
                 "ML_CLIENT_ERROR",
                 HttpStatus.BAD_REQUEST
         );
+    }
+
+    public <T> T postMultipart(String path, MultiValueMap<String, Object> body, Class<T> responseType) {
+        String url = properties.getUrl() + path;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        log.debug("ML POST multipart {}", url);
+
+        try {
+            ResponseEntity<T> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    responseType
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            throw handleClientError(e);
+        } catch (HttpServerErrorException e) {
+            throw handleServerError(e);
+        }
     }
 
     private MLIntegrationException handleServerError(HttpServerErrorException e) {

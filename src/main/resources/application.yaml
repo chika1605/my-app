@@ -3,10 +3,15 @@ upload:
 
 ml:
   api:
-    url: https://b3ec-212-42-96-202.ngrok-free.app
+    url: https://2e72-212-42-96-202.ngrok-free.app
     routers:
       save-doc: /ai/save_doc
       get-info: /ai/get_info
+      chat: /ai/chat
+      asr: /ai/asr
+
+person:
+  upload-dir: /upload/files
 
 spring:
   datasource:
