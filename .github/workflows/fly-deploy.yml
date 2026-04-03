@@ -23,7 +23,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Build with Maven
-        run: ./mvnw package -DskipTests
+        run: chmod +x mvnw && ./mvnw package -DskipTests
       - name: Deploy to Fly.io
         if: github.event_name == 'push'
         uses: superfly/flyctl-actions/setup-flyctl@master
