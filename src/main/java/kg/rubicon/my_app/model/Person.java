@@ -30,6 +30,10 @@ public class Person {
     private LocalDate birthDate;
     private LocalDate deathDate;
 
+    private Integer repressionYear;
+
+    private String photoUrl;
+
     private LocalDate arrestDate;
     private LocalDate sentenceDate;
     private LocalDate rehabilitationDate;

@@ -24,6 +24,9 @@ public class Document {
 
     private LocalDateTime uploadedAt;
 
+    @Enumerated(EnumType.STRING)
+    private DocumentStatus status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")
     private Person person;
