@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "person_translations")
+@Table(
+        name = "person_translations",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"person_id", "language"})
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,9 +19,11 @@ public class PersonTranslation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private short language;
 
     private String fullName;
+    private String normalizedName;
     private String birthPlace;
     private String deathPlace;
     private String region;
@@ -34,8 +39,12 @@ public class PersonTranslation {
     @Column(columnDefinition = "TEXT")
     private String biography;
 
-    @ManyToOne
-    @JoinColumn(name = "person_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_id", nullable = false)
     private Person person;
+
+    public Language getLanguageAsEnum() {
+        return Language.getFromId(this.language);
+    }
 
 }

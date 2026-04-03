@@ -7,11 +7,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum Language {
 
-    RU((short) 1),
-    KG((short) 2),
-    EN((short) 3);
+    RU((short) 1, "ru"),
+    KY((short) 2, "ky"),
+    EN((short) 3, "en"),
+    TR((short) 4, "tr");
+
 
     private final short id;
+    private final String slug;
 
     public static Language getFromId(short id) {
         for (Language lang : values()) {
