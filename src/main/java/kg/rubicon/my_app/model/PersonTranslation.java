@@ -1,9 +1,11 @@
 package kg.rubicon.my_app.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "person_translations")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class PersonTranslation {
 
     @Id

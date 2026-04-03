@@ -29,7 +29,6 @@ public class Person {
     private LocalDate sentenceDate;
     private LocalDate rehabilitationDate;
 
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PersonTranslation> translations;
+
 
 }
