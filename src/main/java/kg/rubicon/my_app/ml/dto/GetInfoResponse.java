@@ -7,8 +7,7 @@ import java.util.Map;
 
 public record GetInfoResponse(
         String type,
-        Map<String, Object> result,
         @JsonProperty("normalized_names") List<String> normalizedNames,
-        @JsonProperty("missing_fields") List<String> missingFields,
+        @JsonProperty("result") SingleResult  result,
         List<String> warnings
 ) {}

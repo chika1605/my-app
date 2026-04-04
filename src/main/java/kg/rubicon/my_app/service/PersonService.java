@@ -39,7 +39,7 @@ public class PersonService {
 
         if (approved) {
             personRepository.personUpdateStatusById(id, PersonStatus.VERIFIED.getId());
-            List<Document> documents = person.getDocumentsManyToMany();
+            List<Document> documents = person.getDocuments();
 
             Document document = documents.get(0);
             Path path = Paths.get(System.getProperty("user.dir"))
@@ -61,12 +61,12 @@ public class PersonService {
                     .text(content)
                     .build();
             mlService.saveDoc(req);
-            return personMapper.toDto(person, person.getPhotoUrl(), documents.stream().map(Document::getFileName).toList());
+            return personMapper.toDto(person, person.getImageName(), documents.stream().map(Document::getFileName).toList());
         } else {
 
-            if (person.getDocumentsManyToMany() != null) {
-                for (Document doc : person.getDocumentsManyToMany()) {
-                    if (doc.getPersonsManyToMany() == null || doc.getPersonsManyToMany().size() <= 1) {
+            if (person.getDocuments() != null) {
+                for (Document doc : person.getDocuments()) {
+                    if (doc.getPersons() == null || doc.getPersons().size() <= 1) {
                         documentRepository.delete(doc);
                     }
                 }

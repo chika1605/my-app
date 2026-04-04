@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,9 +31,7 @@ public class Person {
     private LocalDate birthDate;
     private LocalDate deathDate;
 
-    private Integer repressionYear;
-
-    private String photoUrl;
+    private String imageName;
 
     private LocalDate arrestDate;
     private LocalDate sentenceDate;
@@ -48,6 +47,8 @@ public class Person {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+    @Column(unique = true)
+    private String normalizedName;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<PersonTranslation> translations;
@@ -58,7 +59,7 @@ public class Person {
             joinColumns = @JoinColumn(name = "person_id"),
             inverseJoinColumns = @JoinColumn(name = "document_id")
     )
-    private List<Document> documentsManyToMany;
+    private List<Document> documents = new ArrayList<>();
 
     public PersonStatus getStatusAsEnum() {
         return PersonStatus.getFromId(this.status);

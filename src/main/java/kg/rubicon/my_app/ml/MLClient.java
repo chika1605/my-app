@@ -1,5 +1,8 @@
 package kg.rubicon.my_app.ml;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import kg.rubicon.my_app.ml.dto.MlErrorResponse;
+import kg.rubicon.my_app.util.exception.DuplicatePersonException;
 import kg.rubicon.my_app.util.exception.MLIntegrationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,8 @@ public class MLClient {
             );
             log.debug("ML response status: {}", response.getStatusCode());
             return response.getBody();
+        } catch (HttpClientErrorException.Conflict e) {
+            throw handleConflict(e);
         } catch (HttpClientErrorException e) {
             throw handleClientError(e);
         } catch (HttpServerErrorException e) {
@@ -110,4 +115,18 @@ public class MLClient {
                 HttpStatus.BAD_GATEWAY
         );
     }
+
+    private DuplicatePersonException handleConflict(HttpClientErrorException.Conflict e) {
+        try {
+            MlErrorResponse errorResponse = new ObjectMapper()
+                    .findAndRegisterModules()
+                    .readValue(e.getResponseBodyAsString(), MlErrorResponse.class);
+            log.warn("Duplicate person detected: {}", errorResponse.getError().getDetails());
+            return new DuplicatePersonException(errorResponse.getError().getDetails());
+        } catch (Exception parseEx) {
+            log.error("Failed to parse 409 response: {}", e.getResponseBodyAsString());
+            return new DuplicatePersonException(null);
+        }
+    }
+
 }

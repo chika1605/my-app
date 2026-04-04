@@ -9,8 +9,8 @@ import java.util.Map;
 public record PersonDataDto(
         Integer birthYear,
         Integer deathYear,
-        Integer repressionYear,
         LocalDate birthDate,
+        String normalizedName,
         LocalDate deathDate,
         LocalDate arrestDate,
         LocalDate sentenceDate,
@@ -20,7 +20,6 @@ public record PersonDataDto(
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record TranslationDto(
             String fullName,
-            String normalizedName,
             String birthPlace,
             String deathPlace,
             String region,
