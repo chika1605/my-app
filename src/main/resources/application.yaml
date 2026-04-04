@@ -1,8 +1,9 @@
+
 upload:
   dir: uploads
-
-person:
-  upload-dir: uploads/images
+  folders:
+    files: files
+    images: images
 
 ml:
   api:
@@ -10,6 +11,8 @@ ml:
     routers:
       save-doc: /ai/save_doc
       get-info: /ai/get_info
+      chat: /ai/chat
+      asr: /ai/asr
       extract-pdf-text: /ai/extract_pdf_text
 
 app:

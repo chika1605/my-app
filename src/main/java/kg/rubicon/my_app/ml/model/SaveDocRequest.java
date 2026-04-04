@@ -12,6 +12,5 @@ public class SaveDocRequest {
     private Long documentId;
     private String filename;
     private String text;
-    private String link;
 
 }

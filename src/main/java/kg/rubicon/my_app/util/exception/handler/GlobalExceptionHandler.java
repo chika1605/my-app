@@ -1,9 +1,7 @@
 package kg.rubicon.my_app.util.exception.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kg.rubicon.my_app.util.exception.ConflictException;
-import kg.rubicon.my_app.util.exception.MLIntegrationException;
-import kg.rubicon.my_app.util.exception.ResourceNotFoundException;
+import kg.rubicon.my_app.util.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
@@ -87,6 +87,21 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 null
         ));
+    }
+
+    @ExceptionHandler(DuplicatePersonException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicatePerson(DuplicatePersonException ex, HttpServletRequest request) {
+
+        log.warn("ML Duplicate Error: {}", ex.getMessage());
+        return buildResponse(ex.getHttpStatus(), ex.getErrorCode(), ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(
+            UnauthorizedException ex, HttpServletRequest request) {
+
+        log.warn("Unauthorized: {} | path: {}", ex.getMessage(), request.getRequestURI());
+        return buildResponse(ex.getHttpStatus(), ex.getErrorCode(), ex.getMessage(), request);
     }
 
 }
