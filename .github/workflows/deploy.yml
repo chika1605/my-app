@@ -1,0 +1,32 @@
+name: Deploy App
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Go to project folder
+        run: cd /home/ubuntu/backend/my-app
+
+      - name: Pull latest code
+        run: |
+          cd /home/ubuntu/backend/my-app
+          git pull
+
+      - name: Build project
+        run: |
+          cd /home/ubuntu/backend/my-app
+          mvn clean package -DskipTests
+
+      - name: Stop old app
+        run: |
+          pkill -f 'java -jar' || true
+
+      - name: Run new app
+        run: |
+          cd /home/ubuntu/backend/my-app
+          nohup java -jar target/*.jar > app.log 2>&1 &
