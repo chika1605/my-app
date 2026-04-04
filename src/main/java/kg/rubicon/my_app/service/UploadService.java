@@ -3,33 +3,30 @@ package kg.rubicon.my_app.service;
 import kg.rubicon.my_app.dto.UploadResult;
 import kg.rubicon.my_app.ml.MlService;
 import kg.rubicon.my_app.ml.dto.GetInfoResponse;
-import kg.rubicon.my_app.ml.dto.PersonCard;
 import kg.rubicon.my_app.ml.dto.SingleResult;
 import kg.rubicon.my_app.model.Document;
 import kg.rubicon.my_app.model.Person;
-import kg.rubicon.my_app.model.PersonStatus;
 import kg.rubicon.my_app.repository.DocumentRepository;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import kg.rubicon.my_app.repository.PersonRepository;
 import kg.rubicon.my_app.util.UploadProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import tools.jackson.databind.ext.javatime.DateTimeParseException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +51,7 @@ public class UploadService {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         // TODO: извлечение текста
-        String extractedText = new String(file.getBytes(), StandardCharsets.UTF_8);
+        String extractedText = extractText(file);
 
         Document document = Document.builder()
                 .originalName(originalName)
@@ -76,6 +73,22 @@ public class UploadService {
         }
 
         return new UploadResult(mlResponse.type(), null, null, null);
+    }
+
+    private String extractText(MultipartFile file) throws IOException {
+        String name = file.getOriginalFilename();
+        if (name != null && name.toLowerCase().endsWith(".pdf")) {
+            byte[] bytes = file.getBytes();
+            try (PDDocument doc = Loader.loadPDF(bytes)) {
+                String text = new PDFTextStripper().getText(doc).trim();
+                if (!text.isBlank()) {
+                    return text;
+                }
+            }
+            // PDFBox не смог извлечь текст — отправляем в ML (OCR через OpenAI)
+            return mlServiceClient.extractPdfText(bytes, name).text();
+        }
+        return new String(file.getBytes(), StandardCharsets.UTF_8);
     }
 
     private String getExtension(String fileName) {

@@ -6,8 +6,10 @@ import kg.rubicon.my_app.util.exception.DuplicatePersonException;
 import kg.rubicon.my_app.util.exception.MLIntegrationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -41,6 +43,35 @@ public class MLClient {
                     responseType
             );
             log.debug("ML response status: {}", response.getStatusCode());
+            return response.getBody();
+        } catch (HttpClientErrorException.Conflict e) {
+            throw handleConflict(e);
+        } catch (HttpClientErrorException e) {
+            throw handleClientError(e);
+        } catch (HttpServerErrorException e) {
+            throw handleServerError(e);
+        }
+    }
+
+    public <T> T postMultipart(String path, String fieldName, byte[] fileBytes, String filename, Class<T> responseType) {
+        String url = properties.getUrl() + path;
+
+        ByteArrayResource resource = new ByteArrayResource(fileBytes) {
+            @Override
+            public String getFilename() { return filename; }
+        };
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add(fieldName, resource);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        log.debug("ML POST multipart {} | file: {}", url, filename);
+
+        try {
+            ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.POST, entity, responseType);
             return response.getBody();
         } catch (HttpClientErrorException.Conflict e) {
             throw handleConflict(e);

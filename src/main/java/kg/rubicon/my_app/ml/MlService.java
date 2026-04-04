@@ -3,6 +3,7 @@ package kg.rubicon.my_app.ml;
 import kg.rubicon.my_app.chat.dto.AsrResponse;
 import kg.rubicon.my_app.ml.model.SaveDocRequest;
 import kg.rubicon.my_app.ml.model.SaveDocResponse;
+import kg.rubicon.my_app.ml.dto.ExtractPdfTextResponse;
 import kg.rubicon.my_app.ml.dto.GetInfoResponse;
 import kg.rubicon.my_app.ml.model.chat.ChatRequest;
 import kg.rubicon.my_app.ml.model.chat.ChatResponse;
@@ -38,6 +39,16 @@ public class MlService {
                 properties.getRouters().getGetInfo(),
                 Map.of("text", text),
                 GetInfoResponse.class
+        );
+    }
+
+    public ExtractPdfTextResponse extractPdfText(byte[] pdfBytes, String filename) {
+        return client.postMultipart(
+                properties.getRouters().getExtractPdfText(),
+                "file",
+                pdfBytes,
+                filename,
+                ExtractPdfTextResponse.class
         );
     }
 
