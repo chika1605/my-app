@@ -15,4 +15,5 @@ jobs:
       - name: Build and restart containers
         run: |
           docker compose down
+          docker rm -f my_app_postgres my_app 2>/dev/null || true
           docker compose up -d --build
