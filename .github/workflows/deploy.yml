@@ -12,11 +12,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build project
-        run: mvn clean package -DskipTests
-
-      - name: Stop old app
-        run: pkill -f 'java -jar' || true
-
-      - name: Run new app
-        run: nohup java -jar target/*.jar > app.log 2>&1 &
+      - name: Build and restart containers
+        run: docker compose up -d --build
