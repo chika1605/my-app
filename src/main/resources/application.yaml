@@ -1,8 +1,9 @@
+
 upload:
   dir: uploads
-
-person:
-  upload-dir: uploads/images
+  folders:
+    files: files
+    images: images
 
 ml:
   api:
