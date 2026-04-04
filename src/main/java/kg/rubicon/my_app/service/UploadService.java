@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -38,7 +42,7 @@ public class UploadService {
         Path filePath = dir.resolve(fileName);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        String fullText = new String(file.getBytes(), StandardCharsets.UTF_8);
+        String fullText = extractText(file);
 
         Document document = Document.builder()
                 .originalName(originalName)
@@ -53,6 +57,22 @@ public class UploadService {
         GetInfoResponse mlResponse = mlServiceClient.getInfo(fullText);
 
         return new UploadResult(document, mlResponse);
+    }
+
+    private String extractText(MultipartFile file) throws IOException {
+        String name = file.getOriginalFilename();
+        if (name != null && name.toLowerCase().endsWith(".pdf")) {
+            byte[] bytes = file.getBytes();
+            try (PDDocument doc = Loader.loadPDF(bytes)) {
+                String text = new PDFTextStripper().getText(doc).trim();
+                if (!text.isBlank()) {
+                    return text;
+                }
+            }
+            // PDFBox не смог извлечь текст — отправляем в ML (OCR через OpenAI)
+            return mlServiceClient.extractPdfText(bytes, name).text();
+        }
+        return new String(file.getBytes(), StandardCharsets.UTF_8);
     }
 
     private String getExtension(String fileName) {
