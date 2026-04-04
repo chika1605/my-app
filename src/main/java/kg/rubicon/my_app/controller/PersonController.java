@@ -1,5 +1,6 @@
 package kg.rubicon.my_app.controller;
 
+import kg.rubicon.my_app.chat.ChatService;
 import kg.rubicon.my_app.dto.*;
 import kg.rubicon.my_app.model.dto.ConfirmResponse;
 import kg.rubicon.my_app.service.ConfirmService;
@@ -57,6 +58,11 @@ public class PersonController {
     @GetMapping("/{id}")
     public ResponseEntity<PersonDetailDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(personService.getById(id));
+    }
+
+    @GetMapping("/{id}/audio")
+    public ResponseEntity<byte[]> getVoice(@PathVariable Long id, @RequestParam(defaultValue = "ru") String language) {
+        return ResponseEntity.ok(personService.getVoice(id, language));
     }
 
 }

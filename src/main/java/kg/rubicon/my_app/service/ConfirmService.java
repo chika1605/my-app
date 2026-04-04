@@ -1,9 +1,7 @@
 package kg.rubicon.my_app.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import kg.rubicon.my_app.dto.PersonCreationRequest;
 import kg.rubicon.my_app.model.Document;
-import kg.rubicon.my_app.model.Language;
 import kg.rubicon.my_app.model.Person;
 import kg.rubicon.my_app.model.PersonTranslation;
 import kg.rubicon.my_app.model.dto.ConfirmResponse;
@@ -33,7 +31,6 @@ public class ConfirmService {
     private final DocumentRepository documentRepository;
     private final PersonRepository personRepository;
     private final UploadProperties properties;
-    private final ObjectMapper objectMapper;
 
     private String savePhoto(MultipartFile photo) throws IOException {
         String photoName = photo.getOriginalFilename();
