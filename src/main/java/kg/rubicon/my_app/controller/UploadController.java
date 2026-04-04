@@ -1,5 +1,6 @@
 package kg.rubicon.my_app.controller;
 
+import kg.rubicon.my_app.dto.UploadResult;
 import kg.rubicon.my_app.service.UploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -26,15 +27,11 @@ public class UploadController {
             return ResponseEntity.badRequest().body(Map.of("error", "Only .txt, .md and .pdf allowed"));
 
         try {
-            UploadService.UploadResult result = uploadService.upload(file);
-            return ResponseEntity.ok(Map.of(
-                    "documentId", result.document().getId(),
-                    "fileUrl",    "/api/files/" + result.document().getFileName(),
-                    "mlResponse", result.mlResponse()
-            ));
+            UploadResult result = uploadService.upload(file);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));//kfjkwejfiwejfiwef
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }
