@@ -32,12 +32,12 @@ public class JwtService {
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return extractClaims(token).getSubject();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        String username = extractUsername(token);
+        String username = extractEmail(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
