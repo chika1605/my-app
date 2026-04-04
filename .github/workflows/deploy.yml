@@ -12,8 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build and restart containers
-        run: |
-          docker compose down
-          docker rm -f my_app_postgres my_app 2>/dev/null || true
-          docker compose up -d --build
+      - name: Stop old containers
+        run: docker compose down || true
+
+      - name: Build and start containers
+        run: docker compose up -d --build
+
+      - name: Show running containers
+        run: docker ps
