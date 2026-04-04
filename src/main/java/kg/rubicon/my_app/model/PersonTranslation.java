@@ -23,7 +23,6 @@ public class PersonTranslation {
     private short language;
 
     private String fullName;
-    private String normalizedName;
     private String birthPlace;
     private String deathPlace;
     private String region;

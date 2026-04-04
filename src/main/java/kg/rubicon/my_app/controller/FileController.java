@@ -1,6 +1,6 @@
 package kg.rubicon.my_app.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import kg.rubicon.my_app.util.UploadProperties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -10,21 +10,39 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/v1/files")
+@RequiredArgsConstructor
 public class FileController {
 
-    @Value("${person.upload-dir}")
-    private String uploadDir;
+    private final UploadProperties uploadProperties;
 
-    @GetMapping("/persons/{filename:.+}")
-    public ResponseEntity<Resource> getPersonPhoto(@PathVariable String filename) {
+    @GetMapping("/{folder}/{filename:.+}")
+    public ResponseEntity<Resource> getFile(@PathVariable String folder,
+                                            @PathVariable String filename) {
+
+        String folderName = uploadProperties.getFolders().get(folder);
+        if (folderName == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         try {
-            Path file = getUploadPath().resolve(filename);
+            Path file = getRootPath()
+                    .resolve(folderName)
+                    .resolve(filename)
+                    .normalize();
+
+            if (!file.startsWith(getRootPath())) {
+                return ResponseEntity.badRequest().build();
+            }
+
             Resource resource = new UrlResource(file.toUri());
 
             if (!resource.exists() || !resource.isReadable()) {
@@ -32,8 +50,10 @@ public class FileController {
             }
 
             String contentType = Files.probeContentType(file);
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, contentType != null ? contentType : "application/octet-stream")
+                    .header(HttpHeaders.CONTENT_TYPE,
+                            contentType != null ? contentType : "application/octet-stream")
                     .body(resource);
 
         } catch (Exception e) {
@@ -41,8 +61,7 @@ public class FileController {
         }
     }
 
-    private Path getUploadPath() {
-        return Paths.get(System.getProperty("user.dir")).resolve(uploadDir);
+    private Path getRootPath() {
+        return Paths.get(System.getProperty("user.dir")).resolve(uploadProperties.getDir());
     }
-
 }

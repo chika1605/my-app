@@ -1,10 +1,9 @@
 package kg.rubicon.my_app.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,18 +17,13 @@ public class Document {
 
     private String originalName;
     private String fileName;
-    private String filePath;
 
     @Column(columnDefinition = "TEXT")
-    private String fullText;
+    private String extractedText;
 
     private LocalDateTime uploadedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "person_id")
-    private Person person;
-
-    @ManyToMany(mappedBy = "documentsManyToMany")
-    private List<Person> personsManyToMany;
+    @ManyToMany(mappedBy = "documents", fetch = FetchType.LAZY)
+    private List<Person> persons = new ArrayList<>();
 
 }

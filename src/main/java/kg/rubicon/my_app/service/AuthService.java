@@ -26,11 +26,11 @@ public class AuthService {
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.username())) {
+        if (userRepository.existsByUsername(request.email())) {
             throw new ConflictException("Username already taken");
         }
         User user = User.builder()
-                .username(request.username())
+                .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .role(Role.USER)
                 .build();
