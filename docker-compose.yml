@@ -6,22 +6,33 @@ services:
       POSTGRES_DB: my_app
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_SHARED_BUFFERS: 64MB
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
     container_name: my_app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
-      - "8081:8080"
+      - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/my_app
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+    restart: unless-stopped
+    mem_limit: 512m
 
 volumes:
   postgres_data:
