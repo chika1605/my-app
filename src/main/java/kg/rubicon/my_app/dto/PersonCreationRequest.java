@@ -26,7 +26,6 @@ public class PersonCreationRequest {
     private LocalDate sentenceDate;
     private LocalDate rehabilitationDate;
 
-    @NotNull(message = "documentId is required")
     private Long documentId;
 
     @Valid
