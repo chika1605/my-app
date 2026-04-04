@@ -112,6 +112,14 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
             @Param("id") Long id,
             @Param("allowedStatuses") List<Short> allowedStatuses
     );
+
+    @Query("""
+    SELECT p FROM Person p
+    LEFT JOIN FETCH p.translations
+    LEFT JOIN FETCH p.documents
+    WHERE p.id = :id
+    """)
+    Optional<Person> findByIdWithTranslationsAndDocuments(@Param("id") Long id);
 }
 
 

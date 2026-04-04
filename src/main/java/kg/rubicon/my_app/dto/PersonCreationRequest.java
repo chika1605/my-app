@@ -1,14 +1,11 @@
 package kg.rubicon.my_app.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
@@ -20,7 +17,6 @@ public class PersonCreationRequest {
 
     private LocalDate birthDate;
     private LocalDate deathDate;
-    private String normalizedName;
 
     private LocalDate arrestDate;
     private LocalDate sentenceDate;
@@ -28,26 +24,18 @@ public class PersonCreationRequest {
 
     private Long documentId;
 
-    @Valid
-    private List<TranslationRequest> translations;
+    private short language;
 
-    @Getter
-    @Setter
-    public static class TranslationRequest {
+    @NotBlank(message = "FullName is required")
+    private String fullName;
 
-        private short language;
-
-        @NotBlank(message = "FullName is required")
-        private String fullName;
-
-        private String birthPlace;
-        private String deathPlace;
-        private String region;
-        private String district;
-        private String occupation;
-        private String charge;
-        private String sentence;
-        private String biography;
-    }
+    private String birthPlace;
+    private String deathPlace;
+    private String region;
+    private String district;
+    private String occupation;
+    private String charge;
+    private String sentence;
+    private String biography;
 
 }

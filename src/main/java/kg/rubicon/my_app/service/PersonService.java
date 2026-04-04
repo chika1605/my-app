@@ -4,10 +4,7 @@ import kg.rubicon.my_app.dto.*;
 import kg.rubicon.my_app.mapper.PersonMapper;
 import kg.rubicon.my_app.ml.MlService;
 import kg.rubicon.my_app.ml.model.SaveDocRequest;
-import kg.rubicon.my_app.model.Document;
-import kg.rubicon.my_app.model.Language;
-import kg.rubicon.my_app.model.Person;
-import kg.rubicon.my_app.model.PersonStatus;
+import kg.rubicon.my_app.model.*;
 import kg.rubicon.my_app.repository.DocumentRepository;
 import kg.rubicon.my_app.repository.PersonRepository;
 import kg.rubicon.my_app.util.UploadProperties;
@@ -16,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -232,6 +230,38 @@ public class PersonService {
         ts.setOccupation(occupation);
         ts.setCharge(charge);
         return ts;
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] getVoice(Long id, String language) {
+        Person person = personRepository.findByIdWithTranslationsAndDocuments(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found: " + id));
+
+        PersonTranslation translation = person.getTranslations().stream()
+                .filter(t -> t.getLanguageAsEnum().getSlug().equals(language))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Translation not found for language: " + language));
+
+        String documentsText = person.getDocuments() == null ? "" :
+                person.getDocuments().stream()
+                .map(Document::getExtractedText)
+                .filter(text -> text != null && !text.isBlank())
+                .collect(Collectors.joining(" "));
+
+        String text = buildText(translation, documentsText);
+        return mlService.getVoice(new VoiceRequest(text, language));
+    }
+
+    private String buildText(PersonTranslation t, String documentsText) {
+        StringBuilder sb = new StringBuilder();
+        if (t.getFullName() != null)   sb.append(t.getFullName()).append(". ");
+        if (t.getBiography() != null)  sb.append(t.getBiography()).append(" ");
+        if (t.getOccupation() != null) sb.append(t.getOccupation()).append(". ");
+        if (t.getCharge() != null)     sb.append(t.getCharge()).append(". ");
+        if (t.getSentence() != null)   sb.append(t.getSentence()).append(". ");
+        if (t.getBirthPlace() != null) sb.append(t.getBirthPlace()).append(". ");
+        if (!documentsText.isBlank())  sb.append(documentsText);
+        return sb.toString().trim();
     }
 
 }

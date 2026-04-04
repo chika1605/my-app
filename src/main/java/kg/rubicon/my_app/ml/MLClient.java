@@ -138,6 +138,27 @@ public class MLClient {
         }
     }
 
+    public byte[] postForBytes(String path, Object requestBody) {
+        String url = properties.getUrl() + path;
+        HttpEntity<Object> entity = new HttpEntity<>(requestBody, buildHeaders());
+
+        log.debug("ML POST (bytes) {}", url);
+
+        try {
+            ResponseEntity<byte[]> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    byte[].class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            throw handleClientError(e);
+        } catch (HttpServerErrorException e) {
+            throw handleServerError(e);
+        }
+    }
+
     private MLIntegrationException handleServerError(HttpServerErrorException e) {
         log.error("ML server error: {}", e.getResponseBodyAsString());
         return new MLIntegrationException(

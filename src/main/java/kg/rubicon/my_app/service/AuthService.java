@@ -26,8 +26,8 @@ public class AuthService {
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.email())) {
-            throw new ConflictException("Username already taken");
+        if (userRepository.existsByEmail(request.email())) {
+            throw new ConflictException("Email already taken");
         }
         User user = User.builder()
                 .email(request.email())
@@ -35,15 +35,15 @@ public class AuthService {
                 .role(Role.USER)
                 .build();
         userRepository.save(user);
-        return new RegisterResponse(user.getUsername(), user.getRole().name());
+        return new RegisterResponse(user.getEmail(), user.getRole().name());
     }
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
+                new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        User user = userRepository.findByUsername(request.username()).orElseThrow();
+        User user = userRepository.findByEmail(request.email()).orElseThrow();
         return buildAuthResponse(user);
     }
 

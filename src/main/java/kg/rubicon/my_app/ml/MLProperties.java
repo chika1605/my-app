@@ -20,5 +20,6 @@ public class MLProperties {
         private String chat;
         private String asr;
         private String extractPdfText;
+        private String voice;
     }
 }

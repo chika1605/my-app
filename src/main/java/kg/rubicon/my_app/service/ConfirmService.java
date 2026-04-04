@@ -1,9 +1,7 @@
 package kg.rubicon.my_app.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import kg.rubicon.my_app.dto.PersonCreationRequest;
 import kg.rubicon.my_app.model.Document;
-import kg.rubicon.my_app.model.Language;
 import kg.rubicon.my_app.model.Person;
 import kg.rubicon.my_app.model.PersonTranslation;
 import kg.rubicon.my_app.model.dto.ConfirmResponse;
@@ -33,7 +31,6 @@ public class ConfirmService {
     private final DocumentRepository documentRepository;
     private final PersonRepository personRepository;
     private final UploadProperties properties;
-    private final ObjectMapper objectMapper;
 
     private String savePhoto(MultipartFile photo) throws IOException {
         String photoName = photo.getOriginalFilename();
@@ -53,17 +50,13 @@ public class ConfirmService {
     @Transactional
     public ConfirmResponse confirm(PersonCreationRequest dto, MultipartFile photo) throws IOException {
 
-        Document document = documentRepository.findById(dto.getDocumentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Document not found: " + dto.getDocumentId()));
-
-        String fullName = "";
-        if (dto.getTranslations() != null && !dto.getTranslations().isEmpty()) {
-            PersonCreationRequest.TranslationRequest ruTranslation = dto.getTranslations().stream()
-                    .filter(t -> t.getLanguage() == Language.RU.getId()) // или нужный id
-                    .findFirst()
-                    .orElse(dto.getTranslations().get(0));
-            fullName = ruTranslation.getFullName() != null ? ruTranslation.getFullName() : "";
+        Document document = null;
+        if(dto.getDocumentId() != null) {
+            document = documentRepository.findById(dto.getDocumentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Document not found: " + dto.getDocumentId()));
         }
+
+        String fullName = dto.getFullName();
 
         Person person = Person.builder()
                 .birthYear(dto.getBirthYear())
@@ -80,34 +73,35 @@ public class ConfirmService {
             person.setImageName(savePhoto(photo));
         }
 
-        if (dto.getTranslations() != null) {
-            List<PersonTranslation> translations = new ArrayList<>();
-            for (PersonCreationRequest.TranslationRequest t : dto.getTranslations()) {
-                translations.add(PersonTranslation.builder()
-                        .language(t.getLanguage())
-                        .fullName(t.getFullName())
-                        .birthPlace(t.getBirthPlace())
-                        .deathPlace(t.getDeathPlace())
-                        .region(t.getRegion())
-                        .district(t.getDistrict())
-                        .occupation(t.getOccupation())
-                        .charge(t.getCharge())
-                        .sentence(t.getSentence())
-                        .biography(t.getBiography())
-                        .person(person)
-                        .build());
-            }
-            person.setTranslations(translations);
-        }
+
+        List<PersonTranslation> translations = new ArrayList<>();
+
+        translations.add(PersonTranslation.builder()
+                .language(dto.getLanguage())
+                .fullName(dto.getFullName())
+                .birthPlace(dto.getBirthPlace())
+                .deathPlace(dto.getDeathPlace())
+                .region(dto.getRegion())
+                .district(dto.getDistrict())
+                .occupation(dto.getOccupation())
+                .charge(dto.getCharge())
+                .sentence(dto.getSentence())
+                .biography(dto.getBiography())
+                .person(person)
+                .build());
+
+        person.setTranslations(translations);
 
         personRepository.save(person);
 
-        document.getPersons().add(person);
-        documentRepository.save(document);
+        if(document != null) {
+            document.getPersons().add(person);
+            documentRepository.save(document);
+        }
 
         return new ConfirmResponse(
                 person.getId(),
-                document.getId(),
+                document != null ? document.getId() : null,
                 person.getImageName(),
                 person.getStatusAsEnum().name()
         );
